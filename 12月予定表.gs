@@ -98,8 +98,8 @@ function InputValue(member){
   whiteSh.getRange(wRowL, 2, 1, enColL).setNotes(getNotesL);         // メモ(下旬)
   whiteSh.getRange(wRowU, 1, 1, 16).setFontColors(getFontColorU)     // フォント色(上旬)
   whiteSh.getRange(wRowL, 2, 1, enColL).setFontColors(getFontColorL) // フォント色(下旬)
-  ColorCoding();  // 行の色を塗り潰す 　初回のみ実行する
-  HolidayColor(); // 休日を色分けする　 初回のみ実行する
+//  ColorCoding();  // 行の色を塗り潰す 　初回のみ実行する
+//  HolidayColor(); // 休日を色分けする　 初回のみ実行する
  }
 
   //【関数】GetRow()  [ 指定したsh内のkeyと一致する行番号を取得する関数 ]

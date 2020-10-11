@@ -14,6 +14,17 @@
 12月 31日          >>> 17
 ******************************/
 
+/* 
+
+・ 色分けの行数をメンバーの変動と連動して変動するようにする。   >>> 完了
+・ lastColumn() で最終列を取得する。                   >>> 完了
+・ 行追加されても自動で列変更・修正されるようにする。          >>> 完了
+・ 行が変更になった場合は、全てセルの状態をクリアしてから書込。
+  ( 行変動があった場合にセル色やメモが残ってしまう為 )
+
+
+*/
+
 function workSchedule_Month10() {
   
   // スプレットシートの情報を取得する。
@@ -23,53 +34,65 @@ function workSchedule_Month10() {
   // 設定項目
   const period = 69; // 第〇〇期
   
-// 読込先スプレットシートを取得する。
-const schedule = ssGet.getSheetByName('${period}期10月'.replace('${period}', period));
-// 書込先のスプレットシートを取得する。  
-const workSchedule = ssSet.getSheetByName('${period}期10月'.replace('${period}', period));
-// eサービス、協力会社のシートを取得する。
-const ssMembers  = ssGet.getSheetByName('eサービスメンバー + 協力会社');
+  // 読込先スプレットシートを取得する。
+  const schedule = ssGet.getSheetByName('${period}期10月'.replace('${period}', period));
 
-const row1 = ssMembers.getRange(1, 1).getNextDataCell(SpreadsheetApp.Direction.DOWN).getRow();   // eサービスメンバー 最終行
-const row2 = ssMembers.getRange(1, 2).getNextDataCell(SpreadsheetApp.Direction.DOWN).getRow();   // 協力会社 最終行
-const isowabito  = ssMembers.getRange( 1, 1, row1, 1).getValues().flat();                        // eサービスメンバー
-const tasukebito = ssMembers.getRange( 1, 2, row2, 1).getValues().flat();                        // 協力会社
-const members = schedule.getRange( 1, 1, 180, 1 ).getValues().flat();
-const enColL = 17;  // 終了列(下旬)  * 月により変動
-let row;
-const num = 22;  // 人数が増減する場合はこの値を減算
-let wRowU = 2;
-let wRowL = wRowU + num;  // 人数の増減により可変
+  // eサービス、協力会社のシートを取得する。
+  const ssMembers  = ssGet.getSheetByName('eサービスメンバー + 協力会社');
+
+  const row1 = ssMembers.getRange(1, 1).getNextDataCell(SpreadsheetApp.Direction.DOWN).getRow();   // eサービスメンバー 最終行
+  const row2 = ssMembers.getRange(1, 2).getNextDataCell(SpreadsheetApp.Direction.DOWN).getRow();   // 協力会社 最終行
+  const isowabito  = ssMembers.getRange( 1, 1, row1, 1).getValues().flat();                        // eサービスメンバー
+  const tasukebito = ssMembers.getRange( 1, 2, row2, 1).getValues().flat();                        // 協力会社
+  const members = schedule.getRange( 1, 1, 180, 1 ).getValues().flat();
+  const lastCol = schedule.getRange(6, 2).getNextDataCell(SpreadsheetApp.Direction.NEXT).getColumn();
+  const enColL = lastCol - 15;  // 予定表の終了列(下旬)
+  let row;
+  
+  // 書込先のスプレットシートを取得する。  
+  const workSchedule = ssSet.getSheetByName('${period}期10月'.replace('${period}', period));
+  
+  const memberNum = 20; // 人数が増減する場合はこの値を減算
+  const blankRow  = 2;  // 上旬と下旬間の空白行数
+  const dateNumU  = 1;  // 日付(上旬)の行数
+  const dateNumL  = 1;  // 日付(下旬)の行数
+  const numRowU   = dateNumU + memberNum + blankRow; // 予定(上旬)の使用行数
+  let wRowU = dateNumU + 1;                          // 日付の行(1) + 最初のメンバー記入行(1) = 2
+  let wRowL = wRowU + numRowU;                       // 日付(下旬)の最初のメンバー記入行
+  const dateRowL  = dateNumU + memberNum + blankRow + dateNumL; // 日付(下旬)行
+  const scheLastRow = dateNumU + (memberNum * 2) + blankRow + dateNumL; // 予定表の最終行
 
 
-// ログ確認
-Logger.log(row1);
-Logger.log(row2);
-Logger.log(isowabito);
-Logger.log(tasukebito);
-Logger.log(members);
-
-
-const eMembers = [ isowabito, tasukebito ]; // eサービスメンバー + 協力会社
-
-eMembers.forEach( eMember => {
-   eMember.forEach( el => {
+  // ログ確認
+  Logger.log(row1);
+  Logger.log(row2);
+  Logger.log(isowabito);
+  Logger.log(tasukebito);
+  Logger.log(members);
+  
+  
+  const eMembers = [ isowabito, tasukebito ]; // eサービスメンバー + 協力会社
+  
+  // セルにメンバー名 ・ 予定を書込
+  eMembers.forEach( eMember => {
+    eMember.forEach( el => {
       members.forEach( member => {
-         if ( el === member ) {
-             InputValue(el);  
-             wRowU++;
-             wRowL = wRowU + num;　// 人数の増減により可変
-         }
+        if ( el === member ) {
+          InputValue(el);  
+          wRowU++;
+          wRowL = wRowU + numRowU;
+        }
       })     
-   })
-});
+    })
+  });
+
 
 /******************************************** 
 * 指定した列と特定の文字列が一致する行番号を取得    *
 * 行番号の情報を取得し指定したシートに書き込む関数  *
 ********************************************/
 function InputValue(member){
-  
+    
   // 指定した列と特定の文字列が一致する行番号を取得
   const key = member;             // 文字列を指定(メンバー情報) 
   const col = "A";                // 指定した文字列を検索する列を指定
@@ -78,12 +101,15 @@ function InputValue(member){
   
   
   // 行番号の情報を取得
-//  const stColU =  1;  // 開始列(上旬)  * 基本固定値
-//  const stColL = 17;  // 開始列(下旬)  * 基本固定値
-//  const enColU = 16;  // 終了列(上旬)  * 基本固定値
-  const val1 = readSh.getRange(row, 1, 1, 16).getValues();                    // 予定表(上旬)
-  const val2 = readSh.getRange(row,17, 1, enColL).getValues();                // 予定表(下旬)
-  const val3 = readSh.getRange(row, 1, 1, 1).getValues();                     // メンバー名(下旬)
+//  const stColU  =  1;  // 開始列(上旬)  * 基本固定値
+//  const stColL  = 17;  // 開始列(下旬)  * 基本固定値
+//  const enColU  = 16;  // 終了列(上旬)  * 基本固定値
+//  const dateRow =  6;  // 日付行       * 基本固定値
+  const dateU = readSh.getRange(6, 2, 1, 15).getValues();                     // 日付(上旬)
+  const dateL = readSh.getRange(6, 17, 1, enColL).getValues();                // 日付(下旬)
+  const val1  = readSh.getRange(row, 1, 1, 16).getValues();                   // 予定表(上旬)
+  const val2  = readSh.getRange(row,17, 1, enColL).getValues();               // 予定表(下旬)
+  const val3  = readSh.getRange(row, 1, 1, 1).getValues();                    // メンバー名(下旬)
   const getNotesU = readSh.getRange( row, 1, 1, 16).getNotes();               // メモ(上旬)
   const getNotesL = readSh.getRange( row, 17, 1, enColL).getNotes();          // メモ(下旬)
   const getFontColorU = readSh.getRange( row, 1, 1, 16).getFontColors();      // フォント色(上旬)
@@ -91,6 +117,8 @@ function InputValue(member){
   
   // 行番号の情報を指定したシートに書き込む
   const whiteSh = workSchedule;  // 書込先のスプレットシート
+  whiteSh.getRange(1, 2, 1, 15).setValues(dateU);                    // 日付(上旬)
+  whiteSh.getRange(dateRowL, 2, 1, enColL).setValues(dateL);         // 日付(下旬)
   whiteSh.getRange(wRowU, 1, 1, 16).setValues(val1);                 // 予定表(上旬)
   whiteSh.getRange(wRowL, 2, 1, enColL).setValues(val2);             // 予定表(下旬)
   whiteSh.getRange(wRowL, 1, 1, 1).setValues(val3);                  // メンバー名(下旬)
@@ -98,8 +126,8 @@ function InputValue(member){
   whiteSh.getRange(wRowL, 2, 1, enColL).setNotes(getNotesL);         // メモ(下旬)
   whiteSh.getRange(wRowU, 1, 1, 16).setFontColors(getFontColorU)     // フォント色(上旬)
   whiteSh.getRange(wRowL, 2, 1, enColL).setFontColors(getFontColorL) // フォント色(下旬)
-//  ColorCoding();  // 行の色を塗り潰す 　初回のみ実行する
-//  HolidayColor(); // 休日を色分けする　 初回のみ実行する
+//  ColorCoding();  // 行の色を塗り潰す 　初回のみ実行する(実行時間が大きい為)
+//  HolidayColor(); // 休日を色分けする　 初回のみ実行する(実行時間が大きい為)
  }
 
   //【関数】GetRow()  [ 指定したsh内のkeyと一致する行番号を取得する関数 ]
@@ -128,8 +156,6 @@ function InputValue(member){
 *           各行を色分けする関数               *
 ********************************************/
 function ColorCoding() {
-//  const cell = workSchedule.getRange("A2").getValues();
-//  Logger.log(cell);
   
   if ( wRowU % 2 === 0) {
     workSchedule.getRange( wRowU, 1, 1, 16 ).setBackgroundColor("#d1f4ec");
@@ -142,6 +168,7 @@ function ColorCoding() {
   } else {
     workSchedule.getRange( wRowL, 1, 1, enColL ).setBackgroundColor("#ffffb7");
   }
+  
 }
 
 
@@ -151,10 +178,10 @@ function ColorCoding() {
 function HolidayColor () {
   
   const days = ['B','C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P','Q'] // 列の配列
-  const firstRowU =  1;     // 開始行(上旬)  * 基本固定値
-  const firstRowL = 24;     // 開始行(下旬)  * 人数増減により変動 * 1 ここを変更します
-  const lastRowU  = 20;     // 終了行(上旬)  * 人数増減により変動 * 1 ここを変更します
-  const lastRowL  = 42;     // 終了行(下旬)  * 人数増減により変動 * 2 ここを変更します
+  const firstRowU =  1;                      // 開始行(上旬)  * 基本固定値
+  const firstRowL = dateRowL;                // 開始行(下旬)  * 人数増減により変動 * 1 ここを変更します  *日付(下旬行)
+  const lastRowU  = dateNumU + memberNum;    // 終了行(上旬)  * 人数増減により変動 * 1 ここを変更します  *メンバー数
+  const lastRowL  = scheLastRow;             // 終了行(下旬)  * 人数増減により変動 * 2 ここを変更します
     
     days.forEach(function(day){
       
@@ -223,7 +250,9 @@ function HolidayColor () {
       }
     });
   });
+
   }
+
 }
 
 
