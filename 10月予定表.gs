@@ -1,19 +1,3 @@
-/******************************
-月の日数           endColLの値     
- 1月 31日          >>> 17
- 2月 28日 or 29日  >>> 14 or 15
- 3月 31日          >>> 17
- 4月 30日          >>> 16
- 5月 31日          >>> 17
- 6月 30日          >>> 16
- 7月 31日          >>> 17
- 8月 31日          >>> 17
- 9月 30日          >>> 16
-10月 31日          >>> 17
-11月 30日          >>> 16
-12月 31日          >>> 17
-******************************/
-
 /* 
 
 ・ 色分けの行数をメンバーの変動と連動して変動するようにする。   >>> 完了
@@ -73,7 +57,14 @@ function workSchedule_Month10() {
   
   const eMembers = [ isowabito, tasukebito ]; // eサービスメンバー + 協力会社
   
-  // セルにメンバー名 ・ 予定を書込
+  
+  // 日付(上旬・下旬)を 取得 ・ 書込
+  const dateU = schedule.getRange(6, 2, 1, 15).getValues();        // 日付(上旬)取得
+  const dateL = schedule.getRange(6, 17, 1, enColL).getValues();   // 日付(下旬)取得
+  workSchedule.getRange(1, 2, 1, 15).setValues(dateU);             // 日付(上旬)書込
+  workSchedule.getRange(dateRowL, 2, 1, enColL).setValues(dateL);  // 日付(下旬)書込
+  
+  // セルに メンバー名 ・ 予定 を書込
   eMembers.forEach( eMember => {
     eMember.forEach( el => {
       members.forEach( member => {
@@ -101,12 +92,6 @@ function InputValue(member){
   
   
   // 行番号の情報を取得
-//  const stColU  =  1;  // 開始列(上旬)  * 基本固定値
-//  const stColL  = 17;  // 開始列(下旬)  * 基本固定値
-//  const enColU  = 16;  // 終了列(上旬)  * 基本固定値
-//  const dateRow =  6;  // 日付行       * 基本固定値
-  const dateU = readSh.getRange(6, 2, 1, 15).getValues();                     // 日付(上旬)
-  const dateL = readSh.getRange(6, 17, 1, enColL).getValues();                // 日付(下旬)
   const val1  = readSh.getRange(row, 1, 1, 16).getValues();                   // 予定表(上旬)
   const val2  = readSh.getRange(row,17, 1, enColL).getValues();               // 予定表(下旬)
   const val3  = readSh.getRange(row, 1, 1, 1).getValues();                    // メンバー名(下旬)
@@ -117,8 +102,6 @@ function InputValue(member){
   
   // 行番号の情報を指定したシートに書き込む
   const whiteSh = workSchedule;  // 書込先のスプレットシート
-  whiteSh.getRange(1, 2, 1, 15).setValues(dateU);                    // 日付(上旬)
-  whiteSh.getRange(dateRowL, 2, 1, enColL).setValues(dateL);         // 日付(下旬)
   whiteSh.getRange(wRowU, 1, 1, 16).setValues(val1);                 // 予定表(上旬)
   whiteSh.getRange(wRowL, 2, 1, enColL).setValues(val2);             // 予定表(下旬)
   whiteSh.getRange(wRowL, 1, 1, 1).setValues(val3);                  // メンバー名(下旬)
@@ -178,10 +161,10 @@ function ColorCoding() {
 function HolidayColor () {
   
   const days = ['B','C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P','Q'] // 列の配列
-  const firstRowU =  1;                      // 開始行(上旬)  * 基本固定値
-  const firstRowL = dateRowL;                // 開始行(下旬)  * 人数増減により変動 * 1 ここを変更します  *日付(下旬行)
-  const lastRowU  = dateNumU + memberNum;    // 終了行(上旬)  * 人数増減により変動 * 1 ここを変更します  *メンバー数
-  const lastRowL  = scheLastRow;             // 終了行(下旬)  * 人数増減により変動 * 2 ここを変更します
+  const firstRowU =  1;                      // 開始行(上旬)
+  const firstRowL = dateRowL;                // 開始行(下旬)
+  const lastRowU  = dateNumU + memberNum;    // 終了行(上旬)
+  const lastRowL  = scheLastRow;             // 終了行(下旬)
     
     days.forEach(function(day){
       
@@ -199,6 +182,10 @@ function HolidayColor () {
                                              .replace('${firstRowU}', firstRowU)
                                             )
       
+      // 上旬の日付を検索する。
+      const dayU = new Date(getFontU.getValues()).getDay();
+      
+      
       // 下旬のセルの色変更範囲を指定する。
       const getRangeL = workSchedule.getRange('${day}${firstRowL}:${day}${lastRowL}'
                                               .replace('${day}', day)
@@ -213,19 +200,8 @@ function HolidayColor () {
                                              .replace('${firstRowL}', firstRowL)
                                             )
       
-      
-      // 上旬の日付を検索する。
-      var dayU = new Date(workSchedule.getRange('${day}${firstRowU}'
-                                                .replace('${day}', day)
-                                                .replace('${firstRowU}', firstRowU)
-                                               ).getValues()).getDay();
-      
-      
       // 下旬の予定を検索する。
-      var dayL = new Date(workSchedule.getRange('${day}${firstRowL}'
-                                                .replace('${day}', day)
-                                                .replace('${firstRowL}', firstRowL)
-                                               ).getValues()).getDay();
+      const dayL = new Date(getFontL.getValues()).getDay();
       
       
       // 土日だった場合の処理。

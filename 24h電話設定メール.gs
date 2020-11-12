@@ -31,14 +31,17 @@ function transferSettings() {
                                       .replace('${period}', period)
                                       .replace('${beforeMonth}', beforeMonth));
   var lastColumn = beforeSchedule.getLastColumn();
-  Logger.log(beforeMonth);
-  Logger.log(lastColumn);
+  
+//  Logger.log(beforeMonth);
+//  Logger.log(lastColumn);
  
   // 日付データの取得範囲を指定する。
-  var firstRow = 6;
-  var lastColumn = 30; // 要修正必要。
+  const firstRow = 6;
+  const _lastCol = schedule.getLastColumn();
+  const lastCol = _lastCol - 1;
+  console.log(lastCol);
   // 選択された日付データを取得する。
-  var _getDays = schedule.getRange(firstRow, 2, 1, lastColumn); 
+  var _getDays = schedule.getRange(firstRow, 2, 1, lastCol); 
   var getDays = _getDays.getValues();
   // 変数の初期設定。
   var number1 = 0;
@@ -56,6 +59,7 @@ function transferSettings() {
       number1 += 1; 
     });  
   });
+  
   
   /* 
   dayNumber: 説の列番号
@@ -82,8 +86,8 @@ function transferSettings() {
   }
   beforeNames = _beforeNames.getValues().flat();
   beforeNames.forEach(el => beforeName = el);
-  Logger.log(name);
-  Logger.log(beforeName);
+//  Logger.log(name);
+//  Logger.log(beforeName);
   
       
   // 夜勤当番者が記入されているセルの色が黄色でなければ、メールを送信する。
@@ -131,7 +135,7 @@ function transferSettings() {
 //  Logger.log('---------------');  
 //  Logger.log(dayNumber);
 //  Logger.log('---------------');
-//  Logger.log(dayOfWeek);
+  Logger.log(dayOfWeek);
 //  Logger.log('---------------');
 //  Logger.log(getCellBackground);
 //  Logger.log('---------------');

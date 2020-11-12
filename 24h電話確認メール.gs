@@ -122,28 +122,28 @@ ${nightShiftDuty1}さん,${nightShiftDuty2}さん\n\n\
     }
   }
   // ログ確認用
-  Logger.log(dayOfWeek);          // 本日の曜日番号
-  Logger.log('---------------');
-  Logger.log(nightShiftDutys2);   // 金曜日の当番（２人分）
-  Logger.log('---------------');
-  Logger.log(namesTrans[0]);      // メールアドレス一覧
-  Logger.log('---------------');  
-  Logger.log(selectedName1);      // 当番の名前（1人目）
-  Logger.log('---------------');
-  Logger.log(namesNumber1);       // 当番の番号（1人目）
-  Logger.log('---------------');
-  Logger.log(selctedAdress1);     // 当番のアドレス（１人目）
-  Logger.log('---------------');
-  Logger.log(selectedName2);      // 当番の名前（2人目）
-  Logger.log('---------------');
-  Logger.log(namesNumber2);       // 当番の番号（2人目）
-  Logger.log('---------------');
-  Logger.log(selctedAdress2);     // 当番のアドレス（2人目）
-  Logger.log('---------------');
-  Logger.log(nightShiftDutys1);    // 当日の当番（2人分）
-  Logger.log('---------------');
-  Logger.log(dayNumber);          // 日付の番号
-  Logger.log('---------------');
-  Logger.log(getCellBackground);  // 当日のセル背景色 
-  Logger.log('---------------');
+//  Logger.log(dayOfWeek);          // 本日の曜日番号
+//  Logger.log('---------------');
+//  Logger.log(nightShiftDutys2);   // 金曜日の当番（２人分）
+//  Logger.log('---------------');
+//  Logger.log(namesTrans[0]);      // メールアドレス一覧
+//  Logger.log('---------------');  
+//  Logger.log(selectedName1);      // 当番の名前（1人目）
+//  Logger.log('---------------');
+//  Logger.log(namesNumber1);       // 当番の番号（1人目）
+//  Logger.log('---------------');
+//  Logger.log(selctedAdress1);     // 当番のアドレス（１人目）
+//  Logger.log('---------------');
+//  Logger.log(selectedName2);      // 当番の名前（2人目）
+//  Logger.log('---------------');
+//  Logger.log(namesNumber2);       // 当番の番号（2人目）
+//  Logger.log('---------------');
+//  Logger.log(selctedAdress2);     // 当番のアドレス（2人目）
+//  Logger.log('---------------');
+//  Logger.log(nightShiftDutys1);    // 当日の当番（2人分）
+//  Logger.log('---------------');
+//  Logger.log(dayNumber);          // 日付の番号
+//  Logger.log('---------------');
+//  Logger.log(getCellBackground);  // 当日のセル背景色 
+//  Logger.log('---------------');
 }
